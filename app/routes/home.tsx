@@ -1,13 +1,26 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import React from 'react';
+import { Routes, Route, Navigate } from "react-router-dom";
+import InsertDoc from "../routes/InsertDocs";
+import PrincipalDocs from "../routes/PrincipalDocs";
+import Login from "../routes/Login";
+import { AuthProvider, useAuth } from 'AuthContext';
+import { AppRouter } from 'AppRouter';
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
 
-export default function Home() {
-  return <Welcome />;
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<PrivateRoute><InsertDoc /></PrivateRoute>} />
+          <Route path="/documents" element={<PrivateRoute><PrincipalDocs /></PrivateRoute>} />
+        </Routes>
+      </AppRouter>
+    </AuthProvider>
+  );
 }
